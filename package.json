@@ -1,0 +1,33 @@
+{
+  "name": "graphql-to-ts",
+  "version": "1.0.0",
+  "description": "Extract TS definitions from a graphql endpoint",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "tsc -b && tsc --declaration",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "graphql",
+    "typescript"
+  ],
+  "author": "Oz",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "@babel/preset-typescript": "^7.7.4",
+    "@babel/register": "^7.7.4",
+    "@types/node": "^12.12.14",
+    "@types/node-fetch": "^2.5.4",
+    "babel-plugin-module-resolver": "^3.2.0",
+    "regenerator-runtime": "^0.13.3",
+    "tslint": "^5.20.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.7.2"
+  }
+}

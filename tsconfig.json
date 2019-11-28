@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "lib",
+    "baseUrl": "./src",
+    "pretty": true,
+    "typeRoots": ["./node_modules/@types"],
+    "lib": ["esnext"]
+  },
+  "exclude": ["node_modules", "lib"],
+  "include": ["./src"],
+  "types": ["typePatches"]
+}
