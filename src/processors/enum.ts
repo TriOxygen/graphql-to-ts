@@ -1,10 +1,10 @@
 import { EnumDescription } from './types';
 
-const enumProcesor = (enumData: EnumDescription) => {
+const enumProcesor = (enumData: EnumDescription, indent: string = '') => {
   return [
-    `enum ${enumData.name} {`,
-    ...enumData.enumValues.map((enumValue) => `  ${enumValue.name} = '${enumValue.name},`),
-    '}',
+    `${indent}export enum ${enumData.name} {`,
+    ...enumData.enumValues.map((enumValue) => `${indent}  ${enumValue.name} = '${enumValue.name}',`),
+    `${indent}}`,
   ].join('\n');
 };
 

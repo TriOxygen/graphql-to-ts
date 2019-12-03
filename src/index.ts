@@ -1,30 +1,38 @@
 import fetch from 'node-fetch';
 import IntrospectionQuery from './IntrospectionQuery';
 import processors from './processors';
-import { ProcessableType } from './processors/types';
+import fs from 'fs';
+import { ProcessableType, ObjectField, TypeProcessor, FieldProcessor, ObjectDescription } from './processors/types';
 
-interface TypeProcessors {
-  match: (field: ProcessableType) => boolean;
-  process: (field: ProcessableType, indent: string) => string;
-}
-
-const typeProcessors: TypeProcessors[] = [
+export const defaultTypeProcessors: TypeProcessor[] = [
   {
     match: (type: ProcessableType) => type.kind === 'ENUM' && /Order$/.test(type.name),
     process: () => null,
   },
   {
-    match: (type: ProcessableType) => type.name === 'Query' || type.kind === 'INPUT_OBJECT',
+    match: (type: ProcessableType) =>
+      type.name === 'EntryCollection' || type.name === 'Entry' || type.name === 'Query' || type.kind === 'INPUT_OBJECT',
     process: () => null,
   },
   {
-    match: (type: ProcessableType) =>
-      /^__/.test(type.name) || /Collection$/.test(type.name) || /Collections$/.test(type.name),
+    match: (type: ProcessableType) => /^__/.test(type.name) || /Collections$/.test(type.name),
     process: () => null,
   },
 ];
 
-const processType = (type: ProcessableType, indent: string = '') => {
+export const defaultFieldProcessors: FieldProcessor[] = [
+  {
+    match: (field: ObjectField) => /sys/.test(field.name),
+    process: (field: ObjectField, indent: string = '') => `${indent}sys: Sys;`,
+  },
+];
+
+const processType = (
+  type: ProcessableType,
+  indent: string = '',
+  typeProcessors: TypeProcessor[],
+  fieldProcessors: FieldProcessor[]
+) => {
   const foundProcessor = typeProcessors.find((subProcessor) => {
     return subProcessor.match(type);
   });
@@ -32,17 +40,40 @@ const processType = (type: ProcessableType, indent: string = '') => {
     return foundProcessor.process(type, indent);
   }
   if (processors[type.kind]) {
-    return processors[type.kind](type);
+    return processors[type.kind](type, indent, fieldProcessors);
   }
   return null;
 };
 
-const go = async (url: string) => {
+const defaultOptions = {
+  headers: {},
+  typeProcessors: defaultTypeProcessors,
+  fieldProcessors: defaultFieldProcessors,
+  prefix: '',
+  module: '',
+};
+
+const GraphQLToTs = async (
+  url: string,
+  options: {
+    headers?: {};
+    typeProcessors?: TypeProcessor[];
+    fieldProcessors?: FieldProcessor[];
+    prefix?: string;
+    module: string;
+  } = defaultOptions
+) => {
+  const myOptions = {
+    ...defaultOptions,
+    ...options,
+  };
+
   try {
     const res = await fetch(url, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
+        ...myOptions.headers,
       },
       body: JSON.stringify({
         query: IntrospectionQuery,
@@ -52,16 +83,19 @@ const go = async (url: string) => {
       data: { __schema: schema },
     } = await res.json();
     const defs: string[] = [];
+    if (myOptions.module) {
+      defs.push(`declare module '${myOptions.module}' {`);
+    }
     schema.types.forEach((type: ProcessableType) => {
-      defs.push(processType(type));
+      defs.push(processType(type, myOptions.module ? '  ' : '', myOptions.typeProcessors, myOptions.fieldProcessors));
     });
-    console.log(defs.filter((def) => !!def).join('\n'));
+    if (myOptions.module) {
+      defs.push(`}`);
+    }
+    return myOptions.prefix + defs.filter((def) => !!def).join('\n');
   } catch (e) {
-    console.error('Something went wrong with fetching the schema.please check your settings');
-    console.error(e);
+    throw new Error(e);
   }
 };
 
-//go('http://localhost:8001/graphql');
-
-export default go;
+export default GraphQLToTs;
