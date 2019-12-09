@@ -44,6 +44,7 @@ const objectProcessor = (
   // console.log(objectData.fields);
   return [
     `${indent}export interface ${objectData.name} {`,
+    `${indent}  __typename: string;`,
     ...objectData.fields
       .filter((field) => !blacklistedFields[field.name])
       .map((field) => processField(field, indent + '  ', fieldProcessors)),

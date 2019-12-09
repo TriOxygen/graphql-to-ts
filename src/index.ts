@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import IntrospectionQuery from './IntrospectionQuery';
 import processors from './processors';
-import fs from 'fs';
 import { ProcessableType, ObjectField, TypeProcessor, FieldProcessor, ObjectDescription } from './processors/types';
 
 export const defaultTypeProcessors: TypeProcessor[] = [
@@ -11,7 +10,7 @@ export const defaultTypeProcessors: TypeProcessor[] = [
   },
   {
     match: (type: ProcessableType) =>
-      type.name === 'EntryCollection' || type.name === 'Entry' || type.name === 'Query' || type.kind === 'INPUT_OBJECT',
+      type.name === 'EntryCollection' || type.name === 'Query' || type.kind === 'INPUT_OBJECT',
     process: () => null,
   },
   {
@@ -21,10 +20,10 @@ export const defaultTypeProcessors: TypeProcessor[] = [
 ];
 
 export const defaultFieldProcessors: FieldProcessor[] = [
-  {
-    match: (field: ObjectField) => /sys/.test(field.name),
-    process: (field: ObjectField, indent: string = '') => `${indent}sys: Sys;`,
-  },
+  // {
+  //   match: (field: ObjectField) => /sys/.test(field.name),
+  //   process: (field: ObjectField, indent: string = '') => `${indent}sys: Sys;`,
+  // },
 ];
 
 const processType = (
@@ -60,7 +59,7 @@ const GraphQLToTs = async (
     typeProcessors?: TypeProcessor[];
     fieldProcessors?: FieldProcessor[];
     prefix?: string;
-    module: string;
+    module?: string;
   } = defaultOptions
 ) => {
   const myOptions = {

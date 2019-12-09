@@ -7,6 +7,7 @@ const processors: Processors = {
   ENUM,
   OBJECT,
   UNION,
+  INTERFACE: OBJECT,
 };
 
 export default processors;
