@@ -1,6 +1,6 @@
 {
   "name": "gql-to-ts",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Extract TS definitions from a graphql endpoint",
   "main": "lib/index.js",
   "scripts": {
