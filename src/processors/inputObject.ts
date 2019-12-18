@@ -1,4 +1,4 @@
-import { ObjectDescription, ObjectField, FieldProcessor } from './types';
+import { InputDescription, ObjectField, FieldProcessor } from './types';
 
 const typeLookup: { [key: string]: string } = {
   String: 'string',
@@ -37,15 +37,14 @@ const processField = (field: ObjectField, indent: string = '', fieldProcessors: 
 };
 
 const objectProcessor = (
-  objectData: ObjectDescription,
+  objectData: InputDescription,
   indent: string = '',
   fieldProcessors: FieldProcessor[] = []
 ): string => {
   // console.log(objectData.fields);
   return [
     `${indent}export interface ${objectData.name} {`,
-    `${indent}  __typename?: string;`,
-    ...objectData.fields
+    ...objectData.inputFields
       .filter((field) => !blacklistedFields[field.name])
       .map((field) => processField(field, indent + '  ', fieldProcessors)),
     `${indent}}`,

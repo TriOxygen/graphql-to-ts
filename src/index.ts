@@ -9,8 +9,7 @@ export const defaultTypeProcessors: TypeProcessor[] = [
     process: () => null,
   },
   {
-    match: (type: ProcessableType) =>
-      type.name === 'EntryCollection' || type.name === 'Query' || type.kind === 'INPUT_OBJECT',
+    match: (type: ProcessableType) => type.name === 'EntryCollection' || type.name === 'Query',
     process: () => null,
   },
   {
@@ -20,10 +19,10 @@ export const defaultTypeProcessors: TypeProcessor[] = [
 ];
 
 export const defaultFieldProcessors: FieldProcessor[] = [
-  // {
-  //   match: (field: ObjectField) => /sys/.test(field.name),
-  //   process: (field: ObjectField, indent: string = '') => `${indent}sys: Sys;`,
-  // },
+  {
+    match: (field: ObjectField) => /sys/.test(field.name),
+    process: (field: ObjectField, indent: string = '') => `${indent}sys?: Sys;`,
+  },
 ];
 
 const processType = (
@@ -49,7 +48,9 @@ const defaultOptions = {
   typeProcessors: defaultTypeProcessors,
   fieldProcessors: defaultFieldProcessors,
   prefix: '',
+  postfix: '',
   module: '',
+  indent: '  ',
 };
 
 const GraphQLToTs = async (
@@ -59,6 +60,8 @@ const GraphQLToTs = async (
     typeProcessors?: TypeProcessor[];
     fieldProcessors?: FieldProcessor[];
     prefix?: string;
+    postfix?: string;
+    indent?: string;
     module?: string;
   } = defaultOptions
 ) => {
@@ -82,16 +85,10 @@ const GraphQLToTs = async (
       data: { __schema: schema },
     } = await res.json();
     const defs: string[] = [];
-    if (myOptions.module) {
-      defs.push(`declare module '${myOptions.module}' {`);
-    }
     schema.types.forEach((type: ProcessableType) => {
-      defs.push(processType(type, myOptions.module ? '  ' : '', myOptions.typeProcessors, myOptions.fieldProcessors));
+      defs.push(processType(type, myOptions.indent, myOptions.typeProcessors, myOptions.fieldProcessors));
     });
-    if (myOptions.module) {
-      defs.push(`}`);
-    }
-    return myOptions.prefix + defs.filter((def) => !!def).join('\n');
+    return myOptions.prefix + defs.filter((def) => !!def).join('\n') + myOptions.postfix;
   } catch (e) {
     throw new Error(e);
   }

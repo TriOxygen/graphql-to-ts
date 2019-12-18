@@ -50,8 +50,11 @@ export interface ObjectField {
 export interface ObjectDescription extends TypeDescription {
   fields: ObjectField[];
 }
+export interface InputDescription extends TypeDescription {
+  inputFields: ObjectField[];
+}
 
-export type ProcessableType = EnumDescription | ObjectDescription | UnionDescription;
+export type ProcessableType = EnumDescription | ObjectDescription | UnionDescription | InputDescription;
 
 type Processor = (descr: ProcessableType, indent: string, fieldProcessors: FieldProcessor[]) => string;
 
