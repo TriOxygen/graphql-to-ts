@@ -1,13 +1,14 @@
 import fetch from 'node-fetch';
 import IntrospectionQuery from './IntrospectionQuery';
 import processors from './processors';
-import { ProcessableType, ObjectField, TypeProcessor, FieldProcessor, ObjectDescription } from './processors/types';
+import { FieldProcessor, ObjectField, ProcessableType, TypeProcessor } from './processors/types';
 
 export const defaultTypeProcessors: TypeProcessor[] = [
   {
     match: (type: ProcessableType) => type.kind === 'ENUM' && /Order$/.test(type.name),
     process: () => null,
   },
+
   {
     match: (type: ProcessableType) => type.name === 'EntryCollection' || type.name === 'Query',
     process: () => null,
@@ -22,6 +23,10 @@ export const defaultFieldProcessors: FieldProcessor[] = [
   {
     match: (field: ObjectField) => /sys/.test(field.name),
     process: (field: ObjectField, indent: string = '') => `${indent}sys?: Sys;`,
+  },
+  {
+    match: (field: ObjectField) => field.type.name === 'JSON',
+    process: (field: ObjectField, indent: string = '') => `${indent}${field.name}?: CustomJSON;`,
   },
 ];
 

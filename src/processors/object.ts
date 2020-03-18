@@ -1,4 +1,4 @@
-import { ObjectDescription, ObjectField, FieldProcessor } from './types';
+import { FieldProcessor, ObjectDescription, ObjectField } from './types';
 
 const typeLookup: { [key: string]: string } = {
   String: 'string',
@@ -13,12 +13,6 @@ const blacklistedFields: { [key: string]: boolean } = {
 };
 
 const processField = (field: ObjectField, indent: string = '', fieldProcessors: FieldProcessor[]): string => {
-  // if (!field.type.name) {
-  //   console.log(field);
-  // }
-  // if (field.name === 'componentsCollection') {
-  //   console.log(field);
-  // }
   const foundProcessor = fieldProcessors.find((subProcessor) => {
     return subProcessor.match(field);
   });
